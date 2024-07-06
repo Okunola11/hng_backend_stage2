@@ -1,6 +1,7 @@
 import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+# from organisation.models import Organisation
 
 class UserManager(BaseUserManager):
     def create_user(self, email, first_name, last_name, password=None):
@@ -35,7 +36,6 @@ class UserManager(BaseUserManager):
         return user
 
 class User(AbstractBaseUser):
-    #user_id = models.CharField(max_length=32, unique=True, editable=False, default=uuid.uuid4().hex)
     user_id = models.CharField(max_length=32, unique=True, blank=True)
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
@@ -43,7 +43,8 @@ class User(AbstractBaseUser):
     phone = models.CharField(max_length=15, blank=True, null=True)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
-
+    organisations = models.ManyToManyField('organisation.Organisation', through='organisation.Membership', related_name='user_organisations')
+    
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
@@ -66,3 +67,4 @@ class User(AbstractBaseUser):
         if not self.user_id:
             self.user_id = uuid.uuid4().hex[:32]  
         super().save(*args, **kwargs)
+
