@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # third party packages
     'rest_framework',
+    'rest_framework_simplejwt',
     # internal apps
     'users',
     'organisation',
@@ -147,7 +148,9 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(seconds=60),
+    'AUTH_HEADER_TYPES': ['Bearer'],
+    'USER_ID_FIELD': 'email',  
+    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(days=1),
     'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': True,
@@ -158,5 +161,10 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     'users.backends.EmailBackend',  
 ]
+
+# Setting my custom user for authentication
+AUTH_USER_MODEL = 'users.User'
+
+
 
 

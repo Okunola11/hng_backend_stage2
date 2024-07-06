@@ -1,6 +1,6 @@
 import uuid
 from rest_framework import serializers
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.views import APIView
 from rest_framework.generics import RetrieveAPIView
 from rest_framework.response import Response
@@ -12,6 +12,8 @@ from organisation.serializers import OrganisationSerializer
 from django.contrib.auth import authenticate
 import jwt
 from django.conf import settings
+
+from rest_framework_simplejwt.tokens import RefreshToken
 
 class RegisterView(APIView):
     def post(self, request, *args, **kwargs):
@@ -25,12 +27,13 @@ class RegisterView(APIView):
                 name=org_name,
             )
             organisation.users.add(user)
-            token = jwt.encode({'user_id': user.user_id}, settings.SECRET_KEY, algorithm='HS256')
+            refresh = RefreshToken.for_user(user)
+            access_token = str(refresh.access_token)  
             return Response({
                 'status': 'success',
                 'message': 'Registration successful',
                 'data': {
-                    'accessToken': token,
+                    'accessToken': access_token,
                     'user': serializer.data
                 }
             }, status=status.HTTP_201_CREATED)
@@ -59,13 +62,14 @@ class LoginView(APIView):
         password = request.data.get('password')
         user = authenticate(email=email, password=password)
         if user:
-            token = jwt.encode({'user_id': user.user_id}, settings.SECRET_KEY, algorithm='HS256')
+            refresh = RefreshToken.for_user(user)
+            access_token = str(refresh.access_token) 
             serializer = UserSerializer(user)
             return Response({
                 'status': 'success',
                 'message': 'Login successful',
                 'data': {
-                    'accessToken': token,
+                    'accessToken': access_token,
                     'user': serializer.data
                 }
             }, status=status.HTTP_200_OK)
@@ -75,10 +79,37 @@ class LoginView(APIView):
             'statusCode': 401
         }, status=status.HTTP_401_UNAUTHORIZED)
 
+# class UserDetailView(RetrieveAPIView):
+#     queryset = User.objects.all()
+#     serializer_class = UserSerializer
+#     permission_classes = [IsAuthenticated]
+
+#     def get_queryset(self):
+#         self.queryset.filter(user_id=self.request.user.user_id)
+
 class UserDetailView(RetrieveAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
 
-    def get_queryset(self):
-        return self.queryset.filter(id=self.request.user.id)
+    def retrieve(self, request, *args, **kwargs):
+        user = self.get_object()
+        serializer = self.serializer_class(user)
+        data = serializer.data
+
+        message = f"Retrieved details for {user.email}"  
+
+        return Response({
+            "status": "success",
+            "message": message,
+            "data": {
+                "userId": data["user_id"],
+                "firstName": data["first_name"],
+                "lastName": data["last_name"],
+                "email": data["email"],
+                "phone": data.get("phone", ""),
+            }
+        })
+        
+
+    
