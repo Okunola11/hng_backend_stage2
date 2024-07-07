@@ -5,7 +5,7 @@ from django.contrib.auth.hashers import make_password
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['user_id', 'first_name', 'last_name', 'email', 'password', 'phone']
+        fields = ['user_id', 'firstName', 'lastName', 'email', 'password', 'phone']
         extra_kwargs = {
             'password': {'write_only': True},
         }
@@ -18,20 +18,20 @@ class UserSerializer(serializers.ModelSerializer):
     def validate(self, data):
         errors = []
 
-        # Validating first_name
-        first_name = data.get('first_name')
-        if not isinstance(first_name, str):
+        # Validating firstName
+        firstName = data.get('firstName')
+        if not isinstance(firstName, str):
             errors.append({
-                'field': 'first_name',
-                'message': 'First_name must be a string.'
+                'field': 'firstName',
+                'message': 'FirstName must be a string.'
             })
 
-         # Validating last_name
-        last_name = data.get('last_name')
-        if not isinstance(last_name, str):
+         # Validating lastName
+        lastName = data.get('lastName')
+        if not isinstance(lastName, str):
             errors.append({
-                'field': 'last_name',
-                'message': 'last_name must be a string.'
+                'field': 'lastName',
+                'message': 'lastName must be a string.'
             })
 
         # Validating email

@@ -106,8 +106,8 @@ class OrganisationDetailView(APIView):
             organisation = Organisation.objects.get(orgId=orgId)
 
             # Check if user is a member of the organisation
-            # if request.user not in organisation.members.all():
-            #     return Response({'message': 'You are not a member of this organisation'}, status=status.HTTP_403_FORBIDDEN)
+            if request.user not in organisation.members.all():
+                return Response({'message': 'You are not a member of this organisation'}, status=status.HTTP_403_FORBIDDEN)
 
             # Success response
             return Response({
@@ -118,7 +118,7 @@ class OrganisationDetailView(APIView):
                     "name": organisation.name,
                     "description": organisation.description,
                 }
-            })
+            }, status=status.HTTP_200_OK)
 
         # Handling errors
         except Organisation.DoesNotExist:

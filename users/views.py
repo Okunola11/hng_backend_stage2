@@ -17,7 +17,7 @@ class RegisterView(APIView):
         try: 
             serializer.is_valid(raise_exception=True)
             user = serializer.save()
-            org_name = f"{user.first_name}'s Organisation"
+            org_name = f"{user.firstName}'s Organisation"
             organisation = Organisation.objects.create(
                 orgId=uuid.uuid4().hex,
                 name=org_name,
@@ -34,8 +34,7 @@ class RegisterView(APIView):
                     'user': serializer.data
                 }
             }, status=status.HTTP_201_CREATED)
-            # errors = [{'field': field, 'message': message} for field, message in serializer.errors.items()]
-            # return Response({'errors': errors}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
         except serializers.ValidationError as e:
             errors = [{'field': field, 'message': message[0]} for field, message in e.detail.items()]
             return Response({'errors': errors}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
@@ -99,8 +98,8 @@ class UserDetailView(APIView):
                 "message": message,
                 "data": {
                 "userId": data["user_id"],
-                "firstName": data["first_name"],
-                "lastName": data["last_name"],
+                "firstName": data["firstName"],
+                "lastName": data["lastName"],
                 "email": data["email"],
                 "phone": data.get("phone", ""),
                 }
