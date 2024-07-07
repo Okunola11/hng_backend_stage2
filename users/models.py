@@ -36,7 +36,7 @@ class UserManager(BaseUserManager):
         return user
 
 class User(AbstractBaseUser):
-    user_id = models.CharField(max_length=32, unique=True, blank=True)
+    userId = models.CharField(max_length=32, unique=True, blank=True)
     firstName = models.CharField(max_length=255)
     lastName = models.CharField(max_length=255)
     email = models.EmailField(unique=True)
@@ -64,7 +64,7 @@ class User(AbstractBaseUser):
         return self.is_admin
 
     def save(self, *args, **kwargs):
-        if not self.user_id:
-            self.user_id = uuid.uuid4().hex[:32]  
+        if not self.userId:
+            self.userId = uuid.uuid4().hex[:32]  
         super().save(*args, **kwargs)
 

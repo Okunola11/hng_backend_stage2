@@ -80,12 +80,12 @@ class UserDetailView(APIView):
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]  
 
-    def get(self, request, user_id, *args, **kwargs):
+    def get(self, request, userId, *args, **kwargs):
         try:
-            user = User.objects.get(user_id=user_id)
+            user = User.objects.get(userId=userId)
 
-            # Check if user the requesting user_id is same as the requested id
-            if request.user.user_id != user_id:
+            # Check if user the requesting userId is same as the requested id
+            if request.user.userId != userId:
                 return Response({'message': 'You have no permission'}, status=status.HTTP_403_FORBIDDEN)
             
             serializer = self.serializer_class(user)
@@ -97,7 +97,7 @@ class UserDetailView(APIView):
                 "status": "success",
                 "message": message,
                 "data": {
-                "userId": data["user_id"],
+                "userId": data["userId"],
                 "firstName": data["firstName"],
                 "lastName": data["lastName"],
                 "email": data["email"],

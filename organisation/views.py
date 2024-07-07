@@ -70,11 +70,11 @@ class AddUserToOrganisationView(APIView):
             organisation = Organisation.objects.get(orgId=orgId)
 
             # Get the user from request data
-            user_id = request.data.get('userId')
-            if not user_id:
+            userId = request.data.get('userId')
+            if not userId:
                 return Response({'message': 'Missing userId in request body'}, status=status.HTTP_400_BAD_REQUEST)
 
-            user = User.objects.get(user_id=user_id)  
+            user = User.objects.get(userId=userId)  
 
             # Add user as a member to the organisation
             organisation.members.add(user)
