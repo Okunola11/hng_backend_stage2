@@ -85,25 +85,34 @@ class UserDetailView(APIView):
             user = User.objects.get(userId=userId)
 
             # Check if user the requesting userId is same as the requested id
-            if request.user.userId != userId:
-                return Response({'message': 'You have no permission'}, status=status.HTTP_403_FORBIDDEN)
+            # if request.user.userId != userId:
+            #     return Response({'message': 'You have no permission'}, status=status.HTTP_403_FORBIDDEN)
+            
+            # Check if the userId belongs to any organization the requesting user belongs to
+            user_orgs = request.user.organisations.all()
+            user_belongs_to_org = User.objects.filter(userId=userId, organisations__in=user_orgs).exists()
+            
             
             serializer = self.serializer_class(user)
             data = serializer.data
             message = f"Retrieved details for {user.email}"
+            
+            if request.user.userId == userId or user_belongs_to_org:
+                # Success response
+                return Response({
+                    "status": "success",
+                    "message": message,
+                    "data": {
+                    "userId": data["userId"],
+                    "firstName": data["firstName"],
+                    "lastName": data["lastName"],
+                    "email": data["email"],
+                    "phone": data.get("phone", ""),
+                    }
+                })
+            else:
+                return Response({'message': 'You have no permission'}, status=status.HTTP_403_FORBIDDEN)
 
-            # Success response
-            return Response({
-                "status": "success",
-                "message": message,
-                "data": {
-                "userId": data["userId"],
-                "firstName": data["firstName"],
-                "lastName": data["lastName"],
-                "email": data["email"],
-                "phone": data.get("phone", ""),
-                }
-            })
 
         # Handling errors
         except User.DoesNotExist:
