@@ -51,7 +51,7 @@ class AuthTests(TestCase):
         org.members.add(self.user)
 
         # Ensure the user can see their own organisation
-        response = self.client.get(f'/api/organisations/{org.orgId}/', HTTP_AUTHORIZATION=f'Bearer {access_token}')
+        response = self.client.get(f'/api/organisations/{org.orgId}', HTTP_AUTHORIZATION=f'Bearer {access_token}')
         self.assertEqual(response.status_code, 200)
 
         # Createing another user
@@ -64,7 +64,7 @@ class AuthTests(TestCase):
 
         # Ensure the other user can't see the organisation
         other_refresh = RefreshToken.for_user(other_user)
-        response = self.client.get(f'/api/organisations/{org.orgId}/', HTTP_AUTHORIZATION=f'Bearer {other_refresh.access_token}')
+        response = self.client.get(f'/api/organisations/{org.orgId}', HTTP_AUTHORIZATION=f'Bearer {other_refresh.access_token}')
         self.assertEqual(response.status_code, 403)
 
 
@@ -94,7 +94,7 @@ class TestAuthEndpoints:
         # Verify default organisation
         user = User.objects.get(email='john.doe@example.com')
         access_token = response.data['data']['accessToken']
-        org = self.client.get(f'/api/organisations/', HTTP_AUTHORIZATION=f'Bearer {access_token}')
+        org = self.client.get(f'/api/organisations', HTTP_AUTHORIZATION=f'Bearer {access_token}')
         firstOrg = org.data['data']['organisations'][0]
         assert firstOrg['name'] == "John's Organisation"
 
