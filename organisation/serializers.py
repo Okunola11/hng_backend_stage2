@@ -4,12 +4,13 @@ from .models import Organisation
 class OrganisationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Organisation
-        fields = ['orgId', 'name', 'description', 'members']
+        fields = ['orgId', 'name', 'description']
+        # fields = ['orgId', 'name', 'description', 'members']
 
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-        data['members'] = [member.email for member in instance.members.all()]  
-        return data
+    # def to_representation(self, instance):
+    #     data = super().to_representation(instance)
+    #     data['members'] = [member.email for member in instance.members.all()]  
+    #     return data
 
 
 # Creation serializer

@@ -12,7 +12,6 @@ User = get_user_model()
 
 # || UNIT TEST || UNIT TEST || UNIT TEST || #
 
-
 class AuthTests(TestCase):
     def setUp(self):
         self.client = APIClient()
@@ -71,7 +70,6 @@ class AuthTests(TestCase):
 
 # || END TO END TEST || END TO END TEST || END TO END TEST || #
 
-
 @pytest.mark.django_db
 class TestAuthEndpoints:
     def setup_method(self):
@@ -116,15 +114,64 @@ class TestAuthEndpoints:
         assert response.data['data']['user']['email'] == 'loginuser@example.com'
         assert 'accessToken' in response.data['data']
 
+        # Testing for failed login attempts
+        otherdata = {
+            'email': 'loginuser@example.com',
+            'password': ''
+        }
+        response = self.client.post(self.login_url, otherdata, format='json')
+        assert response.status_code == 401
+        assert response.data['status'] == 'Bad request'
+        assert response.data['message'] == 'Authentication failed'
+
     def test_register_missing_fields(self):
-        data = {
+        missing_lastName_data = {
             'firstName': 'Jane',
             'email': 'jane.doe@example.com',
             'password': 'password123'
         }
-        response = self.client.post(self.register_url, data, format='json')
+        response = self.client.post(self.register_url, missing_lastName_data, format='json')
         assert response.status_code == 422
         assert any(error['field'] == 'lastName' for error in response.data['errors'])
+
+        missing_firstName_data = {
+            'lastName': 'Jane',
+            'email': 'jane.doe@example.com',
+            'password': 'password123'
+        }
+        response = self.client.post(self.register_url, missing_firstName_data, format='json')
+        assert response.status_code == 422
+        assert any(error['field'] == 'firstName' for error in response.data['errors'])
+
+        missing_email_data = {
+            'firstName': 'Jane',
+            'lastName': 'Jane',
+            'password': 'password123'
+        }
+        response = self.client.post(self.register_url, missing_email_data, format='json')
+        assert response.status_code == 422
+        assert any(error['field'] == 'email' for error in response.data['errors'])
+
+        missing_password_data = {
+            'firstName': 'Jane',
+            'lastName': 'Jane',
+            'email': 'jane.doe@example.com',
+        }
+        response = self.client.post(self.register_url, missing_password_data, format='json')
+        assert response.status_code == 422
+        assert any(error['field'] == 'password' for error in response.data['errors'])
+
+        all_missing_data = {
+            'firstName': '',
+            'lastName': '',
+            'email': '',
+            'password': ''
+        }
+        response = self.client.post(self.register_url, missing_firstName_data, format='json')
+        assert response.status_code == 422
+        fields_to_check = ['firstName', 'lastName', 'email', 'password']
+        assert any(error['field'] in fields_to_check for error in response.data['errors'])
+
 
 
     def test_register_duplicate_email(self):
