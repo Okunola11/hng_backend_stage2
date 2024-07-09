@@ -83,10 +83,6 @@ class UserDetailView(APIView):
     def get(self, request, userId, *args, **kwargs):
         try:
             user = User.objects.get(userId=userId)
-
-            # Check if user the requesting userId is same as the requested id
-            # if request.user.userId != userId:
-            #     return Response({'message': 'You have no permission'}, status=status.HTTP_403_FORBIDDEN)
             
             # Check if the userId belongs to any organization the requesting user belongs to
             user_orgs = request.user.organisations.all()
@@ -112,12 +108,9 @@ class UserDetailView(APIView):
                 })
             else:
                 return Response({'message': 'You have no permission'}, status=status.HTTP_403_FORBIDDEN)
-
-
         # Handling errors
         except User.DoesNotExist:
             return Response({'message': 'User does not exist'}, status=status.HTTP_404_NOT_FOUND)
-
         except Exception as e:
             return Response({'message': f'An error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
